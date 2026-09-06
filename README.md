@@ -38,6 +38,7 @@ npm run build      # typecheck + production build into dist/
 npm run preview    # serve the production build locally
 npm run typecheck  # TypeScript only
 npm run smoke      # live Open-Meteo contract check (network)
+npm run check:live # confirm the public GitHub Pages URL still serves the app
 ```
 
 In the original workspace the project lives at `weather-app/`. After cloning the GitHub repo, this README is the project root.
