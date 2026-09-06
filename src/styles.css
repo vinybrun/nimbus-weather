@@ -311,8 +311,7 @@ body[data-atmosphere="fog"] .orb {
 .locate:hover,
 .unit-toggle button:hover,
 .suggestion:hover,
-.search-submit:hover,
-.chip:hover {
+.search-go:hover {
   filter: brightness(1.08);
 }
 
