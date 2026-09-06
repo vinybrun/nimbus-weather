@@ -13,12 +13,22 @@ export class ApiError extends Error {
   }
 }
 
+const REQUEST_TIMEOUT_MS = 12_000;
+
+function withTimeout(signal?: AbortSignal): AbortSignal {
+  const timeout = AbortSignal.timeout(REQUEST_TIMEOUT_MS);
+  return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
 async function getJson<T>(url: string, signal?: AbortSignal): Promise<T> {
   let response: Response;
   try {
-    response = await fetch(url, { signal });
+    response = await fetch(url, { signal: withTimeout(signal) });
   } catch (error) {
-    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      if (signal?.aborted) throw error;
+      throw new ApiError("The weather service took too long to respond. Please try again.");
+    }
     throw new ApiError("Could not reach the weather service. Check your connection and try again.");
   }
 

@@ -366,6 +366,10 @@ searchForm.addEventListener("submit", (event) => {
   void searchCity(cityInput.value);
 });
 
+cityInput.addEventListener("focus", () => {
+  cityInput.select();
+});
+
 cityInput.addEventListener("input", () => {
   window.clearTimeout(searchTimer);
   searchTimer = window.setTimeout(() => {
