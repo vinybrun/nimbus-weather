@@ -72,14 +72,14 @@ export function clockLabel(isoTime: string): string {
 }
 
 export function formatUpdated(isoTime: string, _timeZone?: string): string {
-  const hour = hourLabel(isoTime);
+  const clock = clockLabel(isoTime);
   const [year, month, day] = isoTime.slice(0, 10).split("-").map(Number);
   const date = new Date(Date.UTC(year, (month ?? 1) - 1, day ?? 1, 12));
   const weekday = new Intl.DateTimeFormat(undefined, {
     weekday: "short",
     timeZone: "UTC",
   }).format(date);
-  return `${weekday} ${hour}`;
+  return `${weekday} ${clock}`;
 }
 
 export function escapeHtml(value: string): string {

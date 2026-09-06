@@ -4,6 +4,8 @@ A polished, responsive weather app. Search any city, optionally use browser geol
 
 **Live:** https://vinybrun.github.io/nimbus-weather/
 
+This is a static Vite + TypeScript app. The browser talks to Open-Meteo directly. There is no backend and no API key.
+
 ## Features
 
 - City search with live suggestions and keyboard navigation
@@ -35,6 +37,7 @@ Other scripts:
 npm run build      # typecheck + production build into dist/
 npm run preview    # serve the production build locally
 npm run typecheck  # TypeScript only
+npm run smoke      # live Open-Meteo contract check (network)
 ```
 
 In the original workspace the project lives at `weather-app/`. After cloning the GitHub repo, this README is the project root.

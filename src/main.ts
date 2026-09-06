@@ -195,11 +195,11 @@ function renderWeather(place: SavedPlace, data: ForecastResponse): void {
   const wind = `${formatWind(current.wind_speed_10m, unit)} ${compassFromDegrees(current.wind_direction_10m)}`;
 
   // Open-Meteo `timezone=auto` strings are location wall-clock, no offset.
-  // Compare them as strings so the browser timezone cannot shift the window.
-  const now = current.time;
+  // Compare hour prefixes so the current hour is kept and the browser TZ cannot shift the window.
+  const currentHour = current.time.slice(0, 13);
   const hourlyItems: string[] = [];
   for (let i = 0; i < data.hourly.time.length && hourlyItems.length < 12; i += 1) {
-    if (data.hourly.time[i] < now) continue;
+    if (data.hourly.time[i].slice(0, 13) < currentHour) continue;
     const code = data.hourly.weather_code[i];
     const pop = data.hourly.precipitation_probability[i];
     hourlyItems.push(`
