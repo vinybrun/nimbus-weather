@@ -1,5 +1,6 @@
 import { ApiError, fetchForecast, searchPlaces } from "./api";
 import {
+  clockLabel,
   compassFromDegrees,
   escapeHtml,
   formatPlace,
@@ -148,13 +149,15 @@ function toSavedPlace(place: GeoPlace, source: SavedPlace["source"]): SavedPlace
 async function loadWeather(place: SavedPlace, label?: string): Promise<void> {
   weatherController?.abort();
   weatherController = new AbortController();
+  const request = weatherController;
   activePlace = place;
   saveLastPlace(place);
   hideSuggestions();
+  setBusy(true);
   setStatus("loading", label ?? `Loading weather for ${place.name}…`);
 
   try {
-    const data = await fetchForecast(place.latitude, place.longitude, weatherController.signal);
+    const data = await fetchForecast(place.latitude, place.longitude, request.signal);
     forecast = data;
     if (place.source === "geo" && place.name === "Your location") {
       place = {
@@ -177,6 +180,8 @@ async function loadWeather(place: SavedPlace, label?: string): Promise<void> {
         ? error.message
         : "Something went wrong while loading the forecast.";
     setStatus("error", message);
+  } finally {
+    if (weatherController === request) setBusy(false);
   }
 }
 
@@ -189,11 +194,12 @@ function renderWeather(place: SavedPlace, data: ForecastResponse): void {
   const locationLine = formatPlace(place);
   const wind = `${formatWind(current.wind_speed_10m, unit)} ${compassFromDegrees(current.wind_direction_10m)}`;
 
-  const now = new Date(current.time).getTime();
+  // Open-Meteo `timezone=auto` strings are location wall-clock, no offset.
+  // Compare them as strings so the browser timezone cannot shift the window.
+  const now = current.time;
   const hourlyItems: string[] = [];
   for (let i = 0; i < data.hourly.time.length && hourlyItems.length < 12; i += 1) {
-    const stamp = new Date(data.hourly.time[i]).getTime();
-    if (stamp < now - 30 * 60 * 1000) continue;
+    if (data.hourly.time[i] < now) continue;
     const code = data.hourly.weather_code[i];
     const pop = data.hourly.precipitation_probability[i];
     hourlyItems.push(`
@@ -257,6 +263,14 @@ function renderWeather(place: SavedPlace, data: ForecastResponse): void {
           <dt>Precipitation</dt>
           <dd>${escapeHtml(formatPrecip(current.precipitation, unit))}</dd>
         </div>
+        <div class="stat">
+          <dt>Sunrise</dt>
+          <dd>${escapeHtml(clockLabel(data.daily.sunrise[0] ?? current.time))}</dd>
+        </div>
+        <div class="stat">
+          <dt>Sunset</dt>
+          <dd>${escapeHtml(clockLabel(data.daily.sunset[0] ?? current.time))}</dd>
+        </div>
       </dl>
     </section>
     ${
@@ -276,6 +290,13 @@ function renderWeather(place: SavedPlace, data: ForecastResponse): void {
   `;
 }
 
+function setBusy(busy: boolean): void {
+  const submit = searchForm.querySelector<HTMLButtonElement>("button[type='submit']");
+  if (submit) submit.disabled = busy;
+  locateBtn.disabled = busy;
+  cityInput.setAttribute("aria-busy", String(busy));
+}
+
 async function searchCity(rawQuery: string): Promise<void> {
   const query = rawQuery.trim();
   if (!query) {
@@ -283,8 +304,14 @@ async function searchCity(rawQuery: string): Promise<void> {
     cityInput.focus();
     return;
   }
+  if (query.length < 2) {
+    setStatus("empty", "Type at least two letters of a city name.");
+    cityInput.focus();
+    return;
+  }
 
   hideSuggestions();
+  setBusy(true);
   setStatus("loading", `Looking up ${query}…`);
 
   try {
@@ -306,6 +333,8 @@ async function searchCity(rawQuery: string): Promise<void> {
         ? error.message
         : "Could not search for that city. Please try again.";
     setStatus("error", message);
+  } finally {
+    setBusy(false);
   }
 }
 
@@ -315,7 +344,7 @@ function requestLocation(): void {
     return;
   }
 
-  locateBtn.disabled = true;
+  setBusy(true);
   setStatus("loading", "Requesting your location…");
 
   navigator.geolocation.getCurrentPosition(
@@ -338,12 +367,12 @@ function requestLocation(): void {
             : "Could not load weather for your location.";
         setStatus("error", message);
       } finally {
-        locateBtn.disabled = false;
+        setBusy(false);
       }
     },
     (error) => {
-      locateBtn.disabled = false;
-      showEmpty();
+      setBusy(false);
+      if (!forecast) showEmpty();
       const messages: Record<number, string> = {
         1: "Location permission was denied. You can still search by city name.",
         2: "Your location is currently unavailable. Search by city instead.",

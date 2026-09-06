@@ -61,6 +61,16 @@ export function hourLabel(isoTime: string, _timeZone?: string): string {
   return `${hour12} ${period}`;
 }
 
+/** Clock time from an Open-Meteo wall-clock stamp, including minutes. */
+export function clockLabel(isoTime: string): string {
+  const hour = Number(isoTime.slice(11, 13));
+  const minute = isoTime.slice(14, 16);
+  if (Number.isNaN(hour) || !/^\d{2}$/.test(minute)) return isoTime;
+  const period = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 || 12;
+  return `${hour12}:${minute} ${period}`;
+}
+
 export function formatUpdated(isoTime: string, _timeZone?: string): string {
   const hour = hourLabel(isoTime);
   const [year, month, day] = isoTime.slice(0, 10).split("-").map(Number);

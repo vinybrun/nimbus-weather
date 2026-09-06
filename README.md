@@ -9,7 +9,7 @@ A polished, responsive weather app. Search any city, optionally use browser geol
 - City search with live suggestions and keyboard navigation
 - Invalid-city handling when Open-Meteo finds no match
 - Optional “Near me” via the browser Geolocation API
-- Current temperature, description, humidity, wind, feels-like, and precipitation
+- Current temperature, description, humidity, wind, feels-like, precipitation, sunrise, and sunset
 - °C / °F toggle (wind and precipitation convert with it)
 - Next-12-hours strip and 7-day forecast
 - Loading skeletons, network errors, and permission-denied states

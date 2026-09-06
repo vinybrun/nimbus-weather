@@ -25,7 +25,11 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
-      - run: touch dist/.nojekyll
+      - run: |
+          test -f dist/app.js
+          test -f dist/app.css
+          test -f dist/index.html
+          touch dist/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
