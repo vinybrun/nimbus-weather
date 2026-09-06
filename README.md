@@ -2,6 +2,8 @@
 
 A polished, responsive weather app. Search any city, optionally use browser geolocation, and read current conditions plus a 7-day forecast. Data comes from [Open-Meteo](https://open-meteo.com/) — no API key.
 
+**Live:** https://vinybrun.github.io/nimbus-weather/
+
 ## Features
 
 - City search with live suggestions and keyboard navigation
