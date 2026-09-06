@@ -1,0 +1,21 @@
+{
+  "name": "nimbus-weather",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Nimbus — a polished weather app powered by Open-Meteo",
+  "license": "MIT",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.2.0"
+  }
+}
